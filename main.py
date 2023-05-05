@@ -7,9 +7,13 @@ BOT_USERNAME: Final = "@Aravind's shopping bot"
 
 print('Starting up bot...')
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hello there! I\'m a shopper bot. What\'s up?')
+menu =['sting','good day','']
+options = ['inventory','history']
 
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Hello there! \nWelcome to Aravind's Shopping bot for all your shopping needs and more!!')
+    await update.message.reply_text('Send \'inv\' to check out all the items present and \'his\' to see your previous purchases')
+    telegram.ForceReply(selective=None, input_field_placeholder=options, *, api_kwargs=None)
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -25,16 +29,8 @@ def handle_response(text: str) -> str:
     # Create your own response logic
     processed: str = text.lower()
 
-    if 'hello' in processed:
-        return 'Hey there!'
 
-    if 'how are you' in processed:
-        return 'I\'m good!'
-
-    if 'i love python' in processed:
-        return 'Remember to subscribe!'
-
-    return 'I don\'t understand'
+    return str+' echo'
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -54,7 +50,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     #     else:
     #         return  # We don't want the bot respond if it's not mentioned in the group
     # else:
-    response: str = text + ' echo'
+        response: str = handle_response(text)
 
     # Reply normal if the message is in private
     print('Bot:', response)
