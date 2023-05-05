@@ -1,5 +1,6 @@
 from typing import Final
 from telegram import Update
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes
 
 TOKEN: Final = "6026142184:AAE1AGVwwXq5AKSx0YhM2Hiobv8kWQjAdiI"
@@ -8,12 +9,14 @@ BOT_USERNAME: Final = "@Aravind's shopping bot"
 print('Starting up bot...')
 
 menu =['sting','good day','']
-options = ['inventory','history']
+options = [['inventory','history']]
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Hello there! \nWelcome to Aravind\'s Shopping bot for all your shopping needs and more!!')
-    await update.message.reply_text('Send \'inv\' to check out all the items present and \'his\' to see your previous purchases')
-    telegram.ForceReply(selective=None, input_field_placeholder=options, *, api_kwargs=None)
+    await update.message.reply_text('Send \'inv\' to check out all the items present and \'his\' to see your previous purchases',
+                    reply_markup=ReplyKeyboardMarkup(options, one_time_keyboard=True, input_field_placeholder="select the option"
+                        ),)
+    
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
