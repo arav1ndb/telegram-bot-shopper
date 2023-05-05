@@ -53,7 +53,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     #     else:
     #         return  # We don't want the bot respond if it's not mentioned in the group
     # else:
-        response: str = handle_response(text)
+    response: str = handle_response(text)
 
     # Reply normal if the message is in private
     print('Bot:', response)
