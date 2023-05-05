@@ -2,19 +2,31 @@ from typing import Final
 from telegram import Update
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application,CommandHandler,MessageHandler,filters,ContextTypes
+import pandas as pd
+import prettytable as pt
+
 
 TOKEN: Final = "6026142184:AAE1AGVwwXq5AKSx0YhM2Hiobv8kWQjAdiI"
 BOT_USERNAME: Final = "@Aravind's shopping bot"
 
 print('Starting up bot...')
 
-menu =['sting','good day','']
+inventory = pd.DataFrame(
+    {
+        "itemId":[1,2,3,4,5],
+        "name":['Sting','Good Day biscuts','Hide n Seek','Amul Chocobar','Kit Kat'],
+        "quantity":[35,50,30,20,100],
+        "price":[20,10,30,15,25],
+        "tags":[['snack','cool drink'],['snack','biscuts'],['snack','biscuts'],['snack','ice cream'],['snack','chocholates']]
+    }
+)
+
 options = [['inventory','history']]
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Hello there! \nWelcome to Aravind\'s Shopping bot for all your shopping needs and more!!')
-    await update.message.reply_text('Send \'inv\' to check out all the items present and \'his\' to see your previous purchases',
-                    reply_markup=ReplyKeyboardMarkup(options, one_time_keyboard=True, input_field_placeholder="select the option"
+    await update.message.reply_text('Click \'inventory\' to check out all the items present and \'history\' to see your previous purchases',
+                    reply_markup=ReplyKeyboardMarkup(options, one_time_keyboard=True, input_field_placeholder="select an option"
                         ),)
     
 
@@ -30,10 +42,17 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def handle_response(text: str) -> str:
     # Create your own response logic
-    processed: str = text.lower()
-
-
-    return str+' echo'
+    proc: str = text.lower()
+    if 'inventory' in proc or 'i' in proc :
+        inv = "The items currently present in the inventory are \n\n"
+        table = pt.PrettyTable(['Items','Quantity'])
+        for i,k in inventory.iterrows():
+            table.add_row([str(k['name']),str(k['quantity'])])
+        inv+= f'<pre>{table}</pre>'
+        return inv
+    # proc= " \|title1\|title2\| \n \|\-\-\-\|\-\-\-\| \n \|r1\|r11\| \n \|r2\|r222626\|"
+    # proc ="<pre>| Tables   |      Are      |  Cool |\n|----------|:-------------:|------:|\n| col 1 is |  left-aligned | $1600 |\n| col 2 is |    centered   |   $12 |\n| col 3 is | right-aligned |    $1 |</pre>"
+    return str(proc+' echo')
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -57,7 +76,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Reply normal if the message is in private
     print('Bot:', response)
-    await update.message.reply_text(response)
+    await update.message.reply_text(response, parse_mode='HTML')
 
 
 # Log errors
