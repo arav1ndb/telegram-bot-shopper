@@ -8,7 +8,7 @@ BOT_USERNAME: Final = "@Aravind's shopping bot"
 print('Starting up bot...')
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hello there! I\'m a bot. What\'s up?')
+    await update.message.reply_text('Hello there! I\'m a shopper bot. What\'s up?')
 
 
 # Lets us use the /help command
@@ -46,15 +46,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'User ({update.message.chat.id}) in {message_type}: "{text}"')
 
     # React to group messages only if users mention the bot directly
-    if message_type == 'group':
-        # Replace with your bot username
-        if BOT_USERNAME in text:
-            new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response: str = handle_response(new_text)
-        else:
-            return  # We don't want the bot respond if it's not mentioned in the group
-    else:
-        response: str = handle_response(text)
+    # if message_type == 'group':
+    #     # Replace with your bot username
+    #     if BOT_USERNAME in text:
+    #         new_text: str = text.replace(BOT_USERNAME, '').strip()
+    #         response: str = handle_response(new_text)
+    #     else:
+    #         return  # We don't want the bot respond if it's not mentioned in the group
+    # else:
+    response: str = text + 'echo'
 
     # Reply normal if the message is in private
     print('Bot:', response)
