@@ -5,17 +5,18 @@ from telegram.ext import Application,CommandHandler,MessageHandler,filters,Conte
 import pandas as pd
 import prettytable as pt
 
-
 TOKEN: Final = "6026142184:AAE1AGVwwXq5AKSx0YhM2Hiobv8kWQjAdiI"
 BOT_USERNAME: Final = "@Aravind's shopping bot"
 
 print('Starting up bot...')
 
+state = 0 #0 - shopping,1 - payment,2 - 
+
 inventory = pd.DataFrame(
     {
         "itemId":[1,2,3,4,5],
-        "name":['Sting','Good Day biscuts','Hide n Seek','Amul Chocobar','Kit Kat'],
-        "quantity":[35,50,30,20,100],
+        "name":['sting','good day ','hide n seek','amul chocobar','kit kat'],
+        "quantity":[35,50,30,8,100],
         "price":[20,10,30,15,25],
         "tags":[['snack','cool drink'],['snack','biscuts'],['snack','biscuts'],['snack','ice cream'],['snack','chocholates']]
     }
@@ -40,19 +41,45 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
 
 
-def handle_response(text: str) -> str:
+def handle_response(text: str) -> list:
     # Create your own response logic
     proc: str = text.lower()
-    if 'inventory' in proc or 'i' in proc :
-        inv = "The items currently present in the inventory are \n\n"
-        table = pt.PrettyTable(['Items','Quantity'])
+
+    if 'inventory' in proc:
+        inv = "The items currently present in the inventory : \n\n"
+        table = pt.PrettyTable(['Items','Price','Availability'])
         for i,k in inventory.iterrows():
-            table.add_row([str(k['name']),str(k['quantity'])])
+            if k['quantity']>=15:
+                avl = 'Yes'
+            elif k['quantity'] >=5:
+                avl = 'Low Stock'
+            else:
+                avl = 'None'
+            table.add_row([str(k['name']),str(k['price']),avl])
         inv+= f'<pre>{table}</pre>'
-        return inv
-    # proc= " \|title1\|title2\| \n \|\-\-\-\|\-\-\-\| \n \|r1\|r11\| \n \|r2\|r222626\|"
-    # proc ="<pre>| Tables   |      Are      |  Cool |\n|----------|:-------------:|------:|\n| col 1 is |  left-aligned | $1600 |\n| col 2 is |    centered   |   $12 |\n| col 3 is | right-aligned |    $1 |</pre>"
-    return str(proc+' echo')
+        inv+= '\n\nPlease select the items you wish to buy in the form of <b>select item1-q1, item2-q2...</b>'
+        return inv,'HTML'
+    
+    if 'select' in proc or 's' in proc:
+        proc = proc.replace('  ',' ')
+        proc = proc.replace('select ','')
+        items = proc.split(', ')
+        print(items)
+        bill = '<b>The item bill</b>'
+        tp=0
+        billTable = pt.PrettyTable(['Items','Quantity','Total price'])
+        for it in items:
+            item,q = it.split('-')
+            print(item,q)
+            row = inventory.loc[(inventory['name']==item)]
+            tp+=int(q)*int(row['price'].iloc[0])
+            billTable.add_row([str(row['name'].iloc[0]),q,int(q)*int(row['price'].iloc[0])])
+        billTable.add_row(['Total Amt','-',tp])
+        bill+= f'<pre>{billTable}</pre>'
+        print(bill)
+        return bill,'HTML'
+
+    return str('echo'),'None'
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -62,21 +89,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Print a log for debugging
     print(f'User ({update.message.chat.id}) in {message_type}: "{text}"')
-
-    # React to group messages only if users mention the bot directly
-    # if message_type == 'group':
-    #     # Replace with your bot username
-    #     if BOT_USERNAME in text:
-    #         new_text: str = text.replace(BOT_USERNAME, '').strip()
-    #         response: str = handle_response(new_text)
-    #     else:
-    #         return  # We don't want the bot respond if it's not mentioned in the group
-    # else:
-    response: str = handle_response(text)
+    response, parsemode = handle_response(text)
 
     # Reply normal if the message is in private
     print('Bot:', response)
-    await update.message.reply_text(response, parse_mode='HTML')
+    await update.message.reply_text(response, parse_mode=parsemode)
 
 
 # Log errors
